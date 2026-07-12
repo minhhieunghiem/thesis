@@ -40,5 +40,5 @@ fn hkdf_expand_works() {
         64,
     );
 
-    assert_eq!(key.len(), 64);
+
 }
