@@ -1,32 +1,73 @@
-use super::VolPrf;
-use aes::{Aes128, cipher::KeyInit};
+use aes::Aes128;
 use cmac::{Cmac, Mac};
+use digest::KeyInit;
+use super::VolPrf;
+pub struct CmacExpand;
 
-pub struct CmacExpand {
-    key: [u8; 16],
-}
+impl VolPrf for CmacExpand  {
+fn expand(
+    &self,
+    prk: &[u8],
+    context: &[u8],
+    output_len: usize,
+) -> Vec<u8> {
 
-impl CmacExpand {
-    pub fn new(key: [u8; 16]) -> Self {
-        Self { key }
+    assert_eq!(prk.len(), 16, "PRK is 16-byte length");
+
+    let mut output = Vec::with_capacity(output_len);
+
+    let mut counter: u32 = 1;
+
+    while output.len()<output_len   {
+        let mut mac = Cmac::<Aes128>::new_from_slice(prk)
+                                    .expect("Invalid PRK length.");
+        mac.update(&counter.to_be_bytes());
+        mac.update(context);
+
+        let block=mac.finalize().into_bytes();
+
+        output.extend_from_slice(&block);
+
+        counter += 1;
     }
+    output.truncate(output_len);
+
+    output
+}
 }
 
-impl VolPrf for CmacExpand {
-    fn expand(&self, input: &[u8], output: &mut [u8]) {
-        let mut pos = 0;
-        let mut counter: u32 = 1;
+#[cfg(test)]
+mod tests {
 
-        while pos < output.len() {
-            let mut mac = Cmac::<Aes128>::new_from_slice(&self.key).unwrap();
-            mac.update(&counter.to_be_bytes());
-            mac.update(input);
-            let block = mac.finalize().into_bytes();
+    use crate::expand::{VolPrf};
+    use crate::expand::cmac::CmacExpand;
 
-            let take = (output.len() - pos).min(16);
-            output[pos..pos + take].copy_from_slice(&block[..take]);
-            pos += take;
-            counter += 1;
-        }
+    #[test]
+    fn expand_to_32_bytes() {
+
+        let prk = [0u8;16];
+
+        let ctx = b"example";
+
+        let cmac = CmacExpand;
+
+        let key = cmac.expand(&prk, ctx, 32);
+
+        assert_eq!(key.len(), 32);
+    }
+
+    #[test]
+    fn deterministic() {
+
+        let prk = [7u8;16];
+
+        let ctx = b"context";
+
+        let cmac = CmacExpand;
+
+        assert_eq!(
+            cmac.expand(&prk, ctx, 64),
+            cmac.expand(&prk, ctx, 64),
+        );
     }
 }

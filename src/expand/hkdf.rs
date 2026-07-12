@@ -1,24 +1,44 @@
-use super::VolPrf;
 use hkdf::Hkdf;
-use digest::Digest;
-use std::marker::PhantomData;
+use sha2::{Sha256, };
 
-pub struct HkdfExpand<H: Digest> {
-    key: Vec<u8>,
-    _hash: PhantomData<H>,
-}
+use super::VolPrf;
 
-impl<H: Digest> HkdfExpand<H> {
-    pub fn new(key: &[u8]) -> Self {
-        Self { key: key.to_vec(), _hash: PhantomData }
+pub struct HkdfExpand;
+
+impl VolPrf for HkdfExpand {
+    fn expand(
+        &self,
+        prk: &[u8],
+        context: &[u8],
+        out_len: usize
+    ) -> Vec<u8> {
+
+        let hkdf = Hkdf::<Sha256>::from_prk(prk)
+            .expect("Invalid PRK length.");
+
+        let mut okm = vec![0u8; out_len];
+
+        hkdf.expand(context, &mut okm).expect("Output too long.");
+
+        okm
     }
 }
 
-impl<H: Digest> VolPrf for HkdfExpand<H> {
-    fn expand(&self, input: &[u8], output: &mut [u8]) {
-        let hkdf = Hkdf::<H>::from_prk(&self.key)
-            .expect("key too short for this hash function's output size");
-        hkdf.expand(input, output)
-            .expect("output length exceeds HKDF maximum for this hash");
-    }
+#[test]
+fn hkdf_expand_works() {
+
+    use crate::expand::hkdf::HkdfExpand;
+    use crate::expand::VolPrf;
+
+    let prk = [0x42u8; 16];
+
+    let hkdf = HkdfExpand;
+
+    let key = hkdf.expand(
+        &prk,
+        b"context",
+        64,
+    );
+
+    assert_eq!(key.len(), 64);
 }

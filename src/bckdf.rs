@@ -1,41 +1,66 @@
-use crate::combiner::combine;
+use crate::combiner::{
+    combine_aes128,
+    combine_aes192,
+    combine_aes256
+};
 use crate::context::encode;
-use crate::expand::{cmac::CmacExpand, hkdf::HkdfExpand, VolPrf};
-use aes::cipher::{BlockCipherEncrypt, KeyInit};
-use digest::Digest;
+use crate::expand::VolPrf;
 
-/// CMAC variant — generic over the combiner's AES variant C.
-/// CMAC itself is always AES-128 internally (see expand/cmac.rs), since k
-/// is always 128 bits regardless of C.
-pub fn bc_kdf_cmac<C>(
+pub fn derive_key_aes128<P>(
     sigma1: &[u8],
     sigma2: &[u8],
+    label: u64,
     c1: &[u8],
     c2: &[u8],
-    output: &mut [u8],
-)
+    out_len: usize,
+    prf: &P,
+) -> Vec<u8>
 where
-    C: KeyInit + BlockCipherEncrypt,
+    P: VolPrf,
 {
-    let k   = combine::<C>(sigma1, sigma2);
-    let ctx = encode((output.len() * 8) as u64, c1, c2);
-    CmacExpand::new(k).expand(&ctx, output);
+    let prk = combine_aes128(sigma1, sigma2);
+
+    let context = encode(label, c1, c2);
+
+    prf.expand(&prk, &context, out_len)
 }
 
-/// HKDF-Expand variant — generic over both the combiner's AES variant C
-/// and the hash function H used by HKDF.
-pub fn bc_kdf_hkdf<C, H>(
+/// AES-192 variant.
+pub fn derive_key_aes192<P>(
     sigma1: &[u8],
     sigma2: &[u8],
+    label: u64,
     c1: &[u8],
     c2: &[u8],
-    output: &mut [u8],
-)
+    out_len: usize,
+    prf: &P,
+) -> Vec<u8>
 where
-    C: KeyInit + BlockCipherEncrypt,
-    H: Digest,
+    P: VolPrf,
 {
-    let k   = combine::<C>(sigma1, sigma2);
-    let ctx = encode((output.len() * 8) as u64, c1, c2);
-    HkdfExpand::<H>::new(&k).expand(&ctx, output);
+    let prk = combine_aes192(sigma1, sigma2);
+
+    let context = encode(label, c1, c2);
+
+    prf.expand(&prk, &context, out_len)
+}
+
+/// AES-256 variant.
+pub fn derive_key_aes256<P>(
+    sigma1: &[u8],
+    sigma2: &[u8],
+    label: u64,
+    c1: &[u8],
+    c2: &[u8],
+    out_len: usize,
+    prf: &P,
+) -> Vec<u8>
+where
+    P: VolPrf,
+{
+    let prk = combine_aes256(sigma1, sigma2);
+
+    let context = encode(label, c1, c2);
+
+    prf.expand(&prk, &context, out_len)
 }
