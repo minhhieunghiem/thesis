@@ -1,5 +1,5 @@
 [package]
-name    = "bc-kdf"
+name    = "bckdf"
 version = "0.1.0"
 edition = "2024"
 
@@ -11,7 +11,9 @@ sha2   = "0.11.0"
 sha3   = "0.12.0"
 cipher = "0.5.2"
 digest = "0.11.3"
-hex       = "0.4"
+hex    = "0.4.3"
+hmac   = "0.13.0"
+typenum = "1"
 
 [dev-dependencies]
 criterion = { version = "0.8.2", features = ["html_reports"] }

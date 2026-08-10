@@ -1,4 +1,4 @@
-use aes::Aes128;
+use aes::{Aes128, Aes192, Aes256};
 use cmac::{Cmac, Mac};
 use digest::KeyInit;
 use super::VolPrf;
@@ -15,19 +15,22 @@ fn expand(
     assert_eq!(prk.len(), 16, "PRK is 16-byte length");
 
     let mut output = Vec::with_capacity(output_len);
-
-    let mut counter: u32 = 1;
+    let mut prev = Vec::<u8>::new();
+    let mut counter: u8 = 1;
 
     while output.len()<output_len   {
         let mut mac = Cmac::<Aes128>::new_from_slice(prk)
                                     .expect("Invalid PRK length.");
-        mac.update(&counter.to_be_bytes());
+        mac.update(&prev);
         mac.update(context);
+        mac.update(&[counter]);
+
 
         let block=mac.finalize().into_bytes();
+        let to_copy = std::cmp::min(block.len(), output_len - output.len());
+        output.extend_from_slice(&block[..to_copy]);
 
-        output.extend_from_slice(&block);
-
+        prev=block.to_vec();
         counter += 1;
     }
     output.truncate(output_len);
@@ -38,7 +41,7 @@ fn expand(
 
 #[cfg(test)]
 mod tests {
-
+    use hex::encode;
     use crate::expand::{VolPrf};
     use crate::expand::cmac::CmacExpand;
 
@@ -54,6 +57,7 @@ mod tests {
         let key = cmac.expand(&prk, ctx, 32);
 
         assert_eq!(key.len(), 32);
+        println!("{}", encode(key));
     }
 
     #[test]
