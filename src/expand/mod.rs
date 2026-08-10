@@ -1,5 +1,5 @@
 pub mod cmac;
-mod hkdf;
+pub mod hkdf;
 
 pub trait VolPrf {
     fn expand(

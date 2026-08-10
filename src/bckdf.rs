@@ -9,7 +9,7 @@ use crate::expand::VolPrf;
 pub fn derive_key_aes128<P>(
     sigma1: &[u8],
     sigma2: &[u8],
-    label: u64,
+    label: &[u8],
     c1: &[u8],
     c2: &[u8],
     out_len: usize,
@@ -29,7 +29,7 @@ where
 pub fn derive_key_aes192<P>(
     sigma1: &[u8],
     sigma2: &[u8],
-    label: u64,
+    label: &[u8],
     c1: &[u8],
     c2: &[u8],
     out_len: usize,
@@ -49,7 +49,7 @@ where
 pub fn derive_key_aes256<P>(
     sigma1: &[u8],
     sigma2: &[u8],
-    label: u64,
+    label: &[u8],
     c1: &[u8],
     c2: &[u8],
     out_len: usize,
