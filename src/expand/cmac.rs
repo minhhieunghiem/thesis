@@ -12,8 +12,6 @@ fn expand(
     output_len: usize,
 ) -> Vec<u8> {
 
-    assert_eq!(prk.len(), 16, "PRK is 16-byte length");
-
     let mut output = Vec::with_capacity(output_len);
     let mut prev = Vec::<u8>::new();
     let mut counter: u8 = 1;
