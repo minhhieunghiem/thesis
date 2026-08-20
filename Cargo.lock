@@ -58,6 +58,7 @@ dependencies = [
  "cipher",
  "cmac",
  "criterion",
+ "criterion-cycles-per-byte",
  "digest",
  "hex",
  "hkdf",
@@ -241,6 +242,16 @@ dependencies = [
  "serde_json",
  "tinytemplate",
  "walkdir",
+]
+
+[[package]]
+name = "criterion-cycles-per-byte"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5396de42a52e9e5d8f67ef0702dae30451f310a9ba1c3094dcf228f0be0e54bc"
+dependencies = [
+ "cfg-if",
+ "criterion",
 ]
 
 [[package]]
