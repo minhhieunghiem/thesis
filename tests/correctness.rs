@@ -260,3 +260,19 @@ fn cmac_and_hkdf_produce_different_keys() {
 
     assert_ne!(k1, k2);
 }
+
+fn h(s: &str) -> Vec<u8> {
+    hex::decode(s).expect("valid hex")
+}
+#[test]
+fn rfc5869_a1_sha256() {
+    // Appendix A.1: Basic test case with SHA-256
+    let prk = h("077709362c2e32df0ddc3f0dc47bba6390b6c73bb50f9c3122ec844ad7c2b3e5");
+    let info = h("f0f1f2f3f4f5f6f7f8f9");
+    let expected_okm = h("3cb25f25faacd57a90434f64d0362f2a2d2d0a90cf1a5a4c5db02d56ecc4c5bf34007208d5b887185865");
+
+    let expander = HkdfExpand::<Sha256>::default();
+    let okm = expander.expand(&prk, &info, 42);
+
+    assert_eq!(okm, expected_okm, "RFC 5869 A.1 OKM mismatch");
+}
