@@ -38,7 +38,6 @@ where
         let mut prev = Vec::new();
 
         for i in 1..=n {
-            // Mac trait must be in scope for new_from_slice to resolve
             let mut mac = SimpleHmac::<D>::new_from_slice(prk)
                 .expect("HMAC accepts keys of any length");
 
