@@ -239,10 +239,94 @@ fn bench_expand_only_cycles(c: &mut Criterion<CyclesPerByte>) {
 
     group.finish();
 }
-criterion_group!(time_benches, bench_full_kdf_time, bench_expand_only_time);
+
+fn combine_only_time(c: &mut Criterion) {
+    let mut group = c.benchmark_group("combine_only_time");
+    let sigma1_128 = [0x11u8; 16];
+    let sigma2_128 = [0x22u8; 16];
+    let sigma1_192 = [0x11u8; 24];
+    let sigma2_192 = [0x22u8; 24];
+    let sigma1_256 = [0x11u8; 32];
+    let sigma2_256 = [0x22u8; 32];
+
+    // AES-128 combine only
+    group.bench_function("aes128", |b| {
+        b.iter(|| {
+            bckdf::combiner::combine_aes128(
+                black_box(&sigma1_128),
+                black_box(&sigma2_128),
+            )
+        });
+    });
+
+    // AES-128 combine only
+    group.bench_function("aes192", |b| {
+        b.iter(|| {
+            bckdf::combiner::combine_aes128(
+                black_box(&sigma1_192),
+                black_box(&sigma2_192),
+            )
+        });
+    });
+
+    // AES-256 combine
+    group.bench_function("aes256", |b| {
+        b.iter(|| {
+            bckdf::combiner::combine_aes256(
+                black_box(&sigma1_256),
+                black_box(&sigma2_256),
+            )
+        });
+    });
+
+    group.finish();
+}
+
+fn combine_only_cycles(c: &mut Criterion<CyclesPerByte>) {
+    let mut group = c.benchmark_group("combine_only_cycles");
+    let sigma1_128 = [0x11u8; 16];
+    let sigma2_128 = [0x22u8; 16];
+    let sigma1_192 = [0x11u8; 24];
+    let sigma2_192 = [0x22u8; 24];
+    let sigma1_256 = [0x11u8; 32];
+    let sigma2_256 = [0x22u8; 32];
+
+    // AES-128 combine only
+    group.bench_function("aes128", |b| {
+        b.iter(|| {
+            bckdf::combiner::combine_aes128(
+                black_box(&sigma1_128),
+                black_box(&sigma2_128),
+            )
+        });
+    });
+
+    // AES-128 combine only
+    group.bench_function("aes192", |b| {
+        b.iter(|| {
+            bckdf::combiner::combine_aes128(
+                black_box(&sigma1_192),
+                black_box(&sigma2_192),
+            )
+        });
+    });
+
+    // AES-256 combine
+    group.bench_function("aes256", |b| {
+        b.iter(|| {
+            bckdf::combiner::combine_aes256(
+                black_box(&sigma1_256),
+                black_box(&sigma2_256),
+            )
+        });
+    });
+
+    group.finish();
+}
+criterion_group!(time_benches, bench_full_kdf_time, bench_expand_only_time, combine_only_time);
 criterion_group! {
     name = cycle_benches;
     config = Criterion::default().with_measurement(CyclesPerByte);
-    targets = bench_full_kdf_cycles, bench_expand_only_cycles
+    targets = bench_full_kdf_cycles, bench_expand_only_cycles, combine_only_cycles
 }
 criterion_main!(time_benches, cycle_benches);
