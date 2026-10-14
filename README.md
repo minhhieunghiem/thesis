@@ -88,17 +88,14 @@ cargo test
 ```
 ### Run benchmarks
 ```bash
-# Time-based benchmarks (latency + throughput in MiB/s)
-cargo bench --bench kdf_benchmark -- time
+# PRF-free axis (combiner only)
+cargo bench --bench kdf_benchmark -- combine_only
 
-# Cycles-per-byte benchmarks (x86_64 only, via RDTSC)
-cargo bench --bench kdf_benchmark -- cycles
+# PRF axis (expand step)
+cargo bench --bench kdf_benchmark -- expand_only
 
-# PRF-free variant (combiner only)
-cargo bench --bench kdf_benchmark -- prf_free
-
-# All benchmarks
-cargo bench --bench kdf_benchmark
+# full construction
+cargo bench --bench kdf_benchmark -- full_kdf
 ```
 Benchmark results are written to target/criterion/ as interactive HTML
 reports.
