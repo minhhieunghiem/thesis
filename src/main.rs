@@ -1,6 +1,6 @@
 use hex::encode;
 use bckdf::{derive_key_aes128, derive_key_aes256};
-use bckdf::expand::cmac::CmacExpand;
+use bckdf::expand::cmac::CmacExpand128;
 use chacha20::ChaCha12Rng;
 use rand::{SeedableRng, Rng, rngs::SysRng, RngExt};
 use sha2::Sha256;
@@ -26,7 +26,7 @@ fn main() {
     rng.fill(&mut sigma1_256);
     rng.fill(&mut sigma2_256);
 
-    let cmac =CmacExpand;
+    let cmac = CmacExpand128;
     let hkdf_sha2 = HkdfExpand::<Sha256>::default();
 
     let key=derive_key_aes128(

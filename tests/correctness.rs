@@ -1,7 +1,7 @@
 use bckdf::derive_key_aes128;
 use bckdf::expand::{
     VolPrf,
-    cmac::CmacExpand,
+    cmac::CmacExpand128,
     hkdf::HkdfExpand,
 };
 use sha2::Sha256;
@@ -15,7 +15,7 @@ fn cmac_is_deterministic() {
     let sigma1 = [0x11u8; 16];
     let sigma2 = [0x22u8; 16];
 
-    let prf = CmacExpand;
+    let prf = CmacExpand128;
 
     let k1 = derive_key_aes128(
         &sigma1,
@@ -76,7 +76,7 @@ fn changing_sigma1_changes_output() {
     let sigma1_alt = [0x33u8; 16];
     let sigma2 = [0x22u8; 16];
 
-    let prf = CmacExpand;
+    let prf = CmacExpand128;
 
     let k1 = derive_key_aes128(
         &sigma1,
@@ -107,7 +107,7 @@ fn changing_sigma2_changes_output() {
     let sigma2 = [0x22u8; 16];
     let sigma2_alt = [0x44u8; 16];
 
-    let prf = CmacExpand;
+    let prf = CmacExpand128;
 
     let k1 = derive_key_aes128(
         &sigma1,
@@ -137,7 +137,7 @@ fn changing_label_changes_output() {
     let sigma1 = [0x11u8; 16];
     let sigma2 = [0x22u8; 16];
 
-    let prf = CmacExpand;
+    let prf = CmacExpand128;
 
     let k1 = derive_key_aes128(
         &sigma1,
@@ -167,7 +167,7 @@ fn changing_context_changes_output() {
     let sigma1 = [0x11u8; 16];
     let sigma2 = [0x22u8; 16];
 
-    let prf = CmacExpand;
+    let prf = CmacExpand128;
 
     let k1 = derive_key_aes128(
         &sigma1,
@@ -197,7 +197,7 @@ fn different_output_lengths() {
     let sigma1 = [0x11u8; 16];
     let sigma2 = [0x22u8; 16];
 
-    let prf = CmacExpand;
+    let prf = CmacExpand128;
 
     let k16 = derive_key_aes128(
         &sigma1,
@@ -239,7 +239,7 @@ fn cmac_and_hkdf_produce_different_keys() {
     let sigma1 = [0x11u8; 16];
     let sigma2 = [0x22u8; 16];
 
-    let cmac = CmacExpand;
+    let cmac = CmacExpand128;
     let hkdf = HkdfExpand::<Sha256>::default();
 
     let k1 = derive_key_aes128(

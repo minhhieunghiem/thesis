@@ -3,10 +3,6 @@ name    = "bckdf"
 version = "0.1.0"
 edition = "2024"
 
-[features]
-default = []
-cycles-per-byte = ["criterion-cycles-per-byte"]
-
 [dependencies]
 aes = "0.9.1"
 cmac   = "0.8.0"
@@ -21,11 +17,11 @@ hmac   = "0.13.0"
 typenum = "1.20.1"
 rand    = "0.10.2"
 chacha20 = "0.10.1"
-criterion-cycles-per-byte = { version="0.8.0", optional = true }
+
 
 [dev-dependencies]
 criterion = { version = "0.8.2", features = ["html_reports"] }
-
+criterion-cycles-per-byte = { version="0.8.0"}
 
 
 [[bench]]
